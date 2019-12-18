@@ -12,19 +12,22 @@ class FavoritesViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     
-    var favorites = [GetFavoritePodcast](){
+    var favorites = [Podcast](){
         didSet{
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         }
     }
-    
+     private var refreshControl: UIRefreshControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         loadFavorites()
+        configureRefreshControl()
+         refreshControl.addTarget(self, action: #selector(loadFavorites), for: .valueChanged)
+        
       
     }
     
@@ -33,11 +36,22 @@ class FavoritesViewController: UIViewController {
             fatalError("can't segue")
         }
         
-      //  detailVC.podcast = favorites [indexPath.row])
+        detailVC.podcast = favorites[indexPath.row]
     }
     
+    func configureRefreshControl(){
+        
+        refreshControl = UIRefreshControl()
+        tableView.refreshControl = refreshControl
+    }
+    
+   
+    @objc
     func loadFavorites(){
         PodcastAPICLient.fetchFavorites { [weak self](result) in
+            DispatchQueue.main.async{
+                   self?.refreshControl.endRefreshing()
+                   }
             switch result{
             case .failure:
                 DispatchQueue.main.async {

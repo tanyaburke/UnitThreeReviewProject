@@ -28,7 +28,7 @@ class DetailViewController: UIViewController {
             fatalError("unable to access passed information")
         }
         navigationItem.title = "\(podcast.collectionName)"
-        detailLabel.text = "\(podcast.collectionName)\n\nArtist Name: \(podcast.artistName)\nGenre:  \(podcast.primaryGenreName)\nSubGenre: \(podcast.genres.joined(separator: ", "))\nTrack Name: \(podcast.trackName)\nPrice: \(podcast.trackPrice)\nTrack Rental Price: \(podcast.trackRentalPrice)"
+        detailLabel.text = "\(podcast.collectionName)\n\nArtist Name: \(podcast.artistName ?? "")\nGenre:  \(podcast.primaryGenreName ?? "")\nSubGenre: \(podcast.genres?.joined(separator: ", ") ?? "")\nTrack Name: \(podcast.trackName ?? "")\nPrice: \(podcast.trackPrice ?? 0)\nTrack Rental Price: \(podcast.trackRentalPrice ?? 0)"
         
         podcastImage.getImage(with: podcast.artworkUrl600) {[weak self] (result) in
                 switch result{
@@ -49,17 +49,18 @@ class DetailViewController: UIViewController {
     
     
     @IBAction func favoriteAddButton(_ sender: Any) {
-        guard let podcast = podcast else { return <#return value#> }
-        let podcast = FavoritePodcast(trackId: , favoritedBy: <#T##String#>, collectionName: <#T##String#>, artworkUrl600: <#T##String#>)
-        PodcastAPICLient.postFavorite(favorite: podcast) { [weak self](result) in
+
+        let vpodcast = Podcast(kind: podcast?.kind, collectionId: nil, trackId: podcast?.trackId ?? 0, artistName: podcast?.artistName ?? "", collectionName: podcast?.collectionName ?? "", trackName: podcast?.trackName ?? "", trackViewUrl: nil, artworkUrl100: podcast?.artworkUrl100 ?? "", trackPrice: podcast?.trackPrice ?? 0, trackRentalPrice: podcast?.trackPrice ?? 0, releaseDate: nil , primaryGenreName: podcast?.primaryGenreName ?? "", artworkUrl600: podcast?.artworkUrl600 ?? "", genres: podcast?.genres ?? ["N/A"], favoritedBy: "Tanya") 
+        
+        PodcastAPICLient.postFavorite(favorite: vpodcast) { [weak self](result) in
             switch result{
             case .failure(let appError):
                 DispatchQueue.main.async{
-                self.showAlert(title: "Error", message: "Unable to add to favorites\(appError)")
+                    self?.showAlert(title: "Error", message: "Unable to add to favorites\(appError)")
                 }
-            case .success(true):
+            case .success:
                 DispatchQueue.main.async{
-                    self.showAlert(title: "Success", message: "Added to favorites")
+                    self?.showAlert(title: "Success", message: "Added to favorites")
                 }
             }
         }

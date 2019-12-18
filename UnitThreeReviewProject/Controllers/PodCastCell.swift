@@ -14,17 +14,25 @@ class PodCastCell: UITableViewCell {
     
     @IBOutlet weak var podcastImage: UIImageView!
     
+    private var urlString = ""
+    
+    
     func configureCell(podcast: Podcast){
         label.text = """
-        \(podcast.collectionName)\n\(podcast.artistName)
+        \(podcast.collectionName)\n\(podcast.artistName ?? "")
         
 """
+        guard let imageURL = podcast.artworkUrl100 else {
+            podcastImage.image = UIImage(systemName: "mic.fill")
+            return
+        }
+//        urlString = imageURL
         
-       podcastImage.getImage(with: podcast.artworkUrl100) {[weak self] (result) in
+        podcastImage.getImage(with: imageURL) {[weak self] (result) in
             switch result{
             case .failure:
                 DispatchQueue.main.sync{
-                    self?.podcastImage.image = UIImage(systemName: "exclamationmark.triangle")
+                    self?.podcastImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     
                 }
             case .success(let image):
@@ -36,7 +44,11 @@ class PodCastCell: UITableViewCell {
             
         }
     }
+     override func prepareForReuse() {
+            super.prepareForReuse()
+            podcastImage.image = UIImage(systemName: "mic.fill")
+        }
+    
     
     }
-
 
