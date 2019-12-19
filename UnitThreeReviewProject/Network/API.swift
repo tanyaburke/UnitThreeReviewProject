@@ -11,13 +11,13 @@ import Foundation
 struct PodcastAPICLient {
     
     static func fetchPodcast(query: String, completion: @escaping (Result <[Podcast],AppError>)->()){
-        let searchTerm = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+        let searchTerm = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "" //wiil replace space with %20
         let podcastEndPointURLString = "https://itunes.apple.com/search?media=podcast&limit=200&term=\(searchTerm)"
         guard let url = URL(string: podcastEndPointURLString) else {
             completion(.failure(.badURL(podcastEndPointURLString)))
             return
         }
-        let request = URLRequest(url: url)
+        let request = URLRequest(url: url) //creating a url request
         
         NetworkHelper.shared.performDataTask(with: request){
             (result) in
@@ -25,7 +25,7 @@ struct PodcastAPICLient {
             case .failure(let appError):
                 completion(.failure(.networkClientError(appError)))
             case .success(let data):
-                do{
+                do{//decoding raw data from the shared url session, according to our model=Results.self
                     let podcasts = try
                         JSONDecoder().decode(Results.self, from: data)
                     completion(.success(podcasts.results))

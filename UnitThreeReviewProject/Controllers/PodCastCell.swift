@@ -31,7 +31,7 @@ class PodCastCell: UITableViewCell {
         podcastImage.getImage(with: imageURL) {[weak self] (result) in
             switch result{
             case .failure:
-                DispatchQueue.main.sync{
+                DispatchQueue.main.async{//async- right away with no interruptions
                     self?.podcastImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     
                 }
